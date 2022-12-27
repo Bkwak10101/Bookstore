@@ -7,7 +7,6 @@ import pl.bkwak.book.store.model.User;
 
 public class Core {
     private static final Core instance = new Core();
-    final BookDB bookDB = BookDB.getInstance();
     final UserDB userDB = UserDB.getInstance();
     final Authenticator authenticator = Authenticator.getInstance();
     final GUI gui = GUI.getInstance();
@@ -44,26 +43,32 @@ public class Core {
                     gui.listBooks();
                     break;
                 case "2":
-                    gui.showOrderResult(gui.buy());
+                    gui.listAudioBooks();
                     break;
                 case "3":
+                    gui.listEbooks();
+                    break;
+                case "4":
+                    gui.showOrderResult(gui.buy());
+                    break;
+                case "5":
                     authenticator.setLoggedUser(null);
                     start();
                     break;
-                case "4":
+                case "6":
                     System.exit(0);
                     break;
-                case "5":
+                case "7":
                     if (this.authenticator.getLoggedUser().getRole() == User.Role.ADMIN) {
-                        gui.restock();
+                        gui.showRestockResult(gui.restock());
                     }
                     break;
-                case "6":
+                case "8":
                     if (this.authenticator.getLoggedUser().getRole() == User.Role.ADMIN) {
                         gui.listUsers();
                     }
                     break;
-                case "7":
+                case "9":
                     if (this.authenticator.getLoggedUser().getRole() == User.Role.ADMIN) {
                         gui.grantStatus();
                     }

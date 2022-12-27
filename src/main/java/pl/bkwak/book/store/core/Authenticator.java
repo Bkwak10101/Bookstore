@@ -13,10 +13,6 @@ public class Authenticator {
         return instance;
     }
 
-    public String getSeed() {
-        return seed;
-    }
-
     public User getLoggedUser() {
         return loggedUser;
     }

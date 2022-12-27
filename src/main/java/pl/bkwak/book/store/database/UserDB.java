@@ -24,31 +24,28 @@ public class UserDB {
     }
 
     public User findByLogin(String login) {
-        for (User user : this.users) {
-            if (user.getLogin().equals(login)) {
-                return user;
-            }
-        }
-        return null;
+        return users.stream()
+                .filter(user -> user.getLogin().equals(login))
+                .findFirst()
+                .orElse(null);
     }
 
     public boolean addUser(User newUser) {
-        for (User user : users) {
-            if (user.getLogin().equals(newUser.getLogin())) {
-                return false;
-            }
+        if (users.stream().anyMatch(user -> user.getLogin().equals(newUser.getLogin()))) {
+            return false;
         }
         users.add(newUser);
         return true;
     }
 
     public boolean grantAdminStatus(String login) {
-        for (User user : this.users) {
-            if (user.getLogin().equals(login)) {
-                user.setRole(User.Role.ADMIN);
-                return true;
-            }
-        }
-        return false;
+        return users.stream()
+                .filter(user -> user.getLogin().equals(login))
+                .findFirst()
+                .map(user -> {
+                    user.setRole(User.Role.ADMIN);
+                    return true;
+                })
+                .orElse(false);
     }
 }
