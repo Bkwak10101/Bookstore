@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Bookstore-362b7b4cbed02c4bb5d5ce85c80dec22fe48751a" />
+        <module name="Bookstore" />
         <module name="BookStore" />
       </profile>
     </annotationProcessing>

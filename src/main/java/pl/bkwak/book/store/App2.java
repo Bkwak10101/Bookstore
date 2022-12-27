@@ -2,7 +2,6 @@ package pl.bkwak.book.store;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import pl.bkwak.book.store.core.Authenticator;
-import pl.bkwak.book.store.model.User;
 
 public class App2 {
     public static void main(String[] args) {

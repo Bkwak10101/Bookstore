@@ -4,10 +4,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import pl.bkwak.book.store.core.Authenticator;
 import pl.bkwak.book.store.database.BookDB;
 import pl.bkwak.book.store.database.UserDB;
-import pl.bkwak.book.store.model.Book;
-import pl.bkwak.book.store.model.User;
+import pl.bkwak.book.store.model.*;
 
+import java.util.Iterator;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 public class GUI {
     private static final GUI instance = new GUI();
@@ -63,16 +65,17 @@ public class GUI {
     }
 
     public String showMenu() {
-
-        System.out.println("1. List books");
-        System.out.println("2. Buy book");
-        System.out.println("3. Sign out");
-        System.out.println("4. Exit");
+        System.out.println("1. List printed books");
+        System.out.println("2. List audiobooks");
+        System.out.println("3. List ebooks");
+        System.out.println("4. Buy book");
+        System.out.println("5. Sign out");
+        System.out.println("6. Exit");
         if (authenticator.getLoggedUser() != null &&
                 authenticator.getLoggedUser().getRole() == User.Role.ADMIN) {
-            System.out.println("5. Restock books");
-            System.out.println("6. List users");
-            System.out.println("7. Grant user admin status");
+            System.out.println("7. Restock books");
+            System.out.println("8. List users");
+            System.out.println("9. Grant user admin status");
 
         }
         return this.scanner.nextLine();
@@ -91,52 +94,105 @@ public class GUI {
         User user = new User();
         System.out.println("Login:");
         user.setLogin(this.scanner.nextLine());
-
         System.out.println("Password:");
         user.setPassword(DigestUtils.md5Hex(this.scanner.nextLine() + Authenticator.seed));
         return user;
     }
 
     public void listBooks() {
-        for (Book book : this.bookDB.getBooks()) {
-            System.out.println(book);
-        }
+        bookDB.getBooks().stream().forEach(System.out::println);
+    }
+
+    public void listAudioBooks(){
+        bookDB.getAudioBooks().stream().forEach(System.out::println);
+    }
+
+    public void listEbooks(){
+        bookDB.getEbooks().stream().forEach(System.out::println);
     }
 
     public void listUsers() {
-        for (User user : this.userDB.getUsers()) {
-            System.out.println(user);
-        }
+        userDB.getUsers().stream().forEach(System.out::println);
     }
 
     public boolean buy() {
-        int counter = 0;
         System.out.println("Title:");
         String title = this.scanner.nextLine();
+        int format = selectFormat(title, true);
         System.out.println("Amount:");
         String amount = this.scanner.nextLine();
-        while (Integer.parseInt(amount) <= 0 && counter < 3) {
+        while (Integer.parseInt(amount) <= 0) {
             System.out.println("Amount of books to buy is not valid");
             System.out.println("Amount:");
             amount = this.scanner.nextLine();
         }
         System.out.println("\nOrdering...");
-        return bookDB.buyBook(title, amount);
+        return switch (format) {
+            case 1 -> bookDB.buyPrintedBook(title, amount);
+            case 2 -> bookDB.buyAudiobook(title,selectFileFormat(format, title), amount);
+            case 3 -> bookDB.buyEbook(title,selectFileFormat(format, title));
+            default -> false;
+        };
     }
 
-    public void restock() {
-        int counter = 0;
+    public boolean restock() {
         System.out.println("Title:");
         String title = this.scanner.nextLine();
+        int format = selectFormat(title, false);
         System.out.println("Amount:");
         String amount = this.scanner.nextLine();
-        while (Integer.parseInt(amount) <= 0 && counter < 3) {
+        while (Integer.parseInt(amount) <= 0) {
             System.out.println("Amount of books to restock is not valid");
             System.out.println("Amount:");
             amount = this.scanner.nextLine();
         }
         System.out.println("\nRestocking...");
-        showRestockResult(bookDB.restockBook(title, amount));
+        return switch (format) {
+            case 1 -> bookDB.restockPrintedBook(title, amount);
+            case 2 -> bookDB.restockAudiobook(title,selectFileFormat(format, title), amount);
+            default -> false;
+        };
+    }
+
+    public int selectFormat(String title, boolean isEbookValid) {
+        System.out.println(" Available book format: ");
+        System.out.println("1. Printed");
+        if (bookDB.getAudioBooks().stream().anyMatch(a -> a.getTitle().equals(title))) {
+            System.out.println("2. Audiobook");
+        }
+        if (bookDB.getEbooks().stream().anyMatch(e -> e.getTitle().equals(title)) && isEbookValid) {
+            System.out.println("3. Ebook");
+        }
+        System.out.println("Format:");
+        String format = this.scanner.nextLine();
+        while (Integer.valueOf(format) <= 0 ||
+                (isEbookValid) ? Integer.valueOf(format) > 3 : Integer.valueOf(format) > 2 ) {
+            System.out.println("Format of books is not valid");
+            System.out.println("Format:");
+            format = this.scanner.nextLine();
+        }
+        return Integer.valueOf(format);
+    }
+
+    public int selectFileFormat(int format, String title){
+        System.out.println(" Available file format: ");
+        if(format == 2){
+            System.out.println("1. MP3");
+            System.out.println("2. CD");
+        }
+        if(format == 3){
+            System.out.println("1. MOBI");
+            System.out.println("2. EPUB");
+        }
+        System.out.println("File format:");
+        String fileFormat = this.scanner.nextLine();
+        while (Integer.valueOf(fileFormat) <= 0 || Integer.valueOf(fileFormat) > 2 ) {
+            System.out.println("Format of books to buy is not valid");
+            System.out.println("Format:");
+            fileFormat = this.scanner.nextLine();
+        }
+        System.out.println(Integer.valueOf(fileFormat));
+        return Integer.valueOf(fileFormat) ;
     }
 
     public void grantStatus() {
