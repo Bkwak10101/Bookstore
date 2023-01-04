@@ -2,6 +2,7 @@ package pl.bkwak.book.store.model;
 
 public final class PrintedBook extends Book{
     private Cover cover;
+
     public PrintedBook(String author, String title, double price, String releaseDate,
                        int inStock, Category category, String isbn, Cover cover) {
         super(author, title, price, releaseDate, inStock, category, isbn);

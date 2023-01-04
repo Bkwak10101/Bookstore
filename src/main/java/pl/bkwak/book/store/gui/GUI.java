@@ -6,7 +6,10 @@ import pl.bkwak.book.store.database.BookDB;
 import pl.bkwak.book.store.database.UserDB;
 import pl.bkwak.book.store.model.*;
 
+import java.util.Iterator;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 public class GUI {
     private static final GUI instance = new GUI();
